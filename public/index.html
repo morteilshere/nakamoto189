@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>NAKAMOTO189 - Slot & Sports</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0b0e1a;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+      color: #eee;
+      padding-bottom: 55px;
+      overflow-x: hidden;
+      width: 100%;
+    }
+    body.popup-open { overflow: hidden; }
+
+    .header { display: flex; justify-content: center; align-items: center; padding: 8px 12px; border-bottom: 1px solid #1f2538; background: #0b0e1a; position: relative; height: 52px; box-sizing: border-box; }
+    .header-left { display: flex; align-items: center; flex: 1; }
+    .hamburger { background: none; border: none; cursor: pointer; padding: 8px 4px; display: flex; flex-direction: column; gap: 5px; }
+    .hamburger span { width: 22px; height: 2px; background: #f0b90b; border-radius: 2px; }
+    .logo-container { display: flex; align-items: center; justify-content: center; flex: 1; }
+    .logo-img { max-height: 55px; width: auto; object-fit: contain; display: block; }
+    .logo-text-fallback { font-weight: bold; font-size: 22px; background: linear-gradient(135deg, #f0b90b, #ff6a00); -webkit-background-clip: text; background-clip: text; color: transparent; display: none; text-align: center; white-space: nowrap; }
+    .header-right-placeholder { flex: 1; display: flex; }
+
+    .auth-moved-section { display: flex; justify-content: center; gap: 16px; padding: 4px 16px 4px; margin-top: 0; }
+    .auth-moved-section button { background: transparent; border: 1px solid #f0b90b; color: #f0b90b; font-weight: 700; font-size: 16px; padding: 12px 0; border-radius: 12px; cursor: pointer; transition: 0.2s; background: #0b0e1a; flex: 1; text-align: center; }
+    .auth-moved-section button:last-child { background: #f0b90b; color: #0b0e1a; border: 1px solid #f0b90b; }
+    .auth-moved-section button:active { transform: scale(0.96); }
+
+    .sidebar-auth { display: flex; gap: 12px; padding: 12px 20px; border-bottom: 1px solid #1f2538; margin-bottom: 8px; }
+    .sidebar-auth button { flex: 1; background: transparent; border: 1px solid #f0b90b; color: #f0b90b; font-weight: 600; font-size: 14px; padding: 10px 0; border-radius: 12px; cursor: pointer; }
+    .sidebar-auth button:last-child { background: #f0b90b; color: #0b0e1a; }
+
+    .categories-wrapper { overflow-x: auto; white-space: nowrap; border-bottom: 1px solid #1f2538; scrollbar-width: thin; }
+    .categories { display: inline-flex; gap: 12px; padding: 12px 16px; }
+    .cat-item { font-size: 14px; font-weight: 500; color: #aaa; cursor: pointer; padding: 6px 16px; border-radius: 30px; background: #1a1f2e; display: inline-block; }
+    .cat-item.active { color: #f0b90b; background: #f0b90b20; border: 1px solid #f0b90b; }
+
+    .page { display: none; } .page.active { display: block; }
+
+    .slider-wrapper { margin: 12px 16px 4px; position: relative; }
+    .slider-container { border-radius: 12px; overflow: hidden; position: relative; border: 1px solid #f0b90b30; aspect-ratio: 3 / 1; background: #0f1722; width: 100%; }
+    .slider-images { display: flex; width: 100%; height: 100%; transition: transform 0.5s ease-in-out; will-change: transform; }
+    .slider-images img { min-width: 100%; height: 100%; object-fit: cover; display: block; }
+    .slider-dots { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 5; }
+    .slider-dots span { width: 8px; height: 8px; background: rgba(255,255,255,0.5); border-radius: 50%; display: inline-block; cursor: pointer; transition: 0.3s; }
+    .slider-dots span.active { background: #f0b90b; width: 20px; border-radius: 10px; }
+
+    .section-title { padding: 8px 16px; font-size: 18px; font-weight: bold; margin-top: 12px; margin-bottom: 8px; background: linear-gradient(135deg, #f0b90b, #ff6a00); -webkit-background-clip: text; background-clip: text; color: transparent; border-left: 3px solid #f0b90b; }
+
+    .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 12px; padding: 8px 16px; }
+    .game-card { background: #101624; border-radius: 16px; padding: 10px 6px; text-align: center; cursor: pointer; transition: transform 0.1s ease; }
+    .game-card:active { transform: scale(0.96); }
+    .game-icon-img { width: 100%; max-width: 65px; height: auto; aspect-ratio: 1 / 1; border-radius: 16px; object-fit: cover; margin: 0 auto 8px; display: block; }
+    .game-name { font-size: 10px; font-weight: 500; margin-top: 4px; } .game-provider { font-size: 8px; color: #f0b90b; margin-top: 4px; }
+
+    .new-section-title { padding: 8px 16px; font-size: 18px; font-weight: bold; margin-top: 20px; margin-bottom: 8px; background: linear-gradient(135deg, #f0b90b, #ff6a00); -webkit-background-clip: text; background-clip: text; color: transparent; border-left: 3px solid #f0b90b; }
+
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0f1422; display: flex; justify-content: space-around; padding: 6px 16px 12px; border-top: 1px solid #1f2538; z-index: 500; }
+    .nav-item { text-align: center; font-size: 10px; color: #aaa; cursor: pointer; } .nav-item.active { color: #f0b90b; } .nav-icon { font-size: 18px; display: block; }
+
+    .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; opacity: 0; visibility: hidden; transition: 0.3s; } .overlay.open { opacity: 1; visibility: visible; }
+    .sidebar { position: fixed; top: 0; left: -85%; width: 85%; max-width: 320px; height: 100%; background: #0f1422; z-index: 1001; transition: 0.3s; padding: 10px 0; overflow-y: auto; } .sidebar.open { left: 0; }
+    .close-btn { background: none; border: none; color: #f0b90b; font-size: 28px; position: absolute; right: 16px; top: 12px; cursor: pointer; }
+    .sidebar-logo { text-align: center; padding: 8px 0 4px; border-bottom: 1px solid #1f2538; margin-bottom: 4px; }
+    .sidebar-logo .logo-img-sidebar { max-height: 55px; width: auto; object-fit: contain; margin: 0 auto; display: block; }
+    .sidebar-logo .sidebar-logo-text { font-weight: bold; font-size: 24px; background: linear-gradient(135deg, #f0b90b, #ff6a00); -webkit-background-clip: text; background-clip: text; color: transparent; display: none; }
+    .menu-item { padding: 12px 20px; border-bottom: 1px solid #1f2538; display: flex; align-items: center; gap: 12px; cursor: pointer; } .menu-item:active { background: #1a2035; } .menu-icon { font-size: 18px; min-width: 30px; }
+
+    .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; align-items: center; justify-content: center; visibility: hidden; opacity: 0; transition: 0.2s; } .popup-overlay.active { visibility: visible; opacity: 1; }
+    .popup-container { background: #0f1422; width: 90%; max-width: 400px; max-height: 85vh; border-radius: 24px; padding: 24px 20px; border: 1px solid #f0b90b; position: relative; overflow-y: auto; }
+    .popup-close { position: sticky; top: 0; right: 0; text-align: right; font-size: 24px; cursor: pointer; color: #aaa; margin-bottom: 10px; } .popup-title { font-size: 20px; font-weight: bold; margin-bottom: 20px; text-align: center; color: #f0b90b; }
+    .form-group { margin-bottom: 16px; } .form-group label { display: block; font-size: 12px; margin-bottom: 6px; color: #ccc; }
+    .form-group input, .form-group select { width: 100%; padding: 12px; background: #1a1f2e; border: 1px solid #2a3040; border-radius: 12px; color: white; font-size: 14px; }
+    .btn-submit { background: #f0b90b; width: 100%; padding: 12px; border: none; border-radius: 40px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 8px; }
+    .checkbox-group { display: flex; align-items: center; gap: 10px; margin: 16px 0; } .checkbox-group input { width: 18px; height: 18px; }
+    .bank-section { background: #101624; border-radius: 16px; padding: 12px; margin: 16px 0; } .link-text { color: #f0b90b; cursor: pointer; text-align: center; margin-top: 12px; font-size: 12px; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left"><button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button></div>
+  <div class="logo-container">
+    <img src="https://i.postimg.cc/8PjdyykR/2D393402-6EDF-41AA-886E-8CA8AC280247.png" alt="NAKAMOTO189" class="logo-img" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='block';">
+    <div class="logo-text-fallback">NAKAMOTO189</div>
+  </div>
+  <div class="header-right-placeholder"></div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="sidebar" id="sidebar">
+  <button class="close-btn" id="closeSidebar">✕</button>
+  <div class="sidebar-logo"><img src="https://i.postimg.cc/8PjdyykR/2D393402-6EDF-41AA-886E-8CA8AC280247.png" alt="NAKAMOTO189" class="logo-img-sidebar" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='block';"><div class="sidebar-logo-text">NAKAMOTO189</div></div>
+  <div class="sidebar-auth"><button id="sidebarLoginBtn">Masuk</button><button id="sidebarRegisterBtn">Daftar</button></div>
+  <div>
+    <div class="menu-item" data-page="home"><span class="menu-icon">🏠</span>Beranda</div>
+    <div class="menu-item" data-page="promosi"><span class="menu-icon">🎁</span>Promosi</div>
+    <div class="menu-item" data-page="vip"><span class="menu-icon">👑</span>VIP</div>
+  </div>
+</div>
+
+<div class="popup-overlay" id="loginPopup"><div class="popup-container"><div class="popup-close" onclick="closeLoginPopup()">✕</div><div class="popup-title">🔐 Masuk</div><div class="form-group"><label>Username</label><input type="text" id="loginUser" placeholder="Username"></div><div class="form-group"><label>Kata Sandi</label><input type="password" id="loginPass" placeholder="Password"></div><button class="btn-submit" onclick="doLogin()">Masuk</button><div class="link-text" onclick="switchToRegister()">Belum punya akun? Daftar</div></div></div>
+<div class="popup-overlay" id="registerPopup"><div class="popup-container"><div class="popup-close" onclick="closeRegisterPopup()">✕</div><div class="popup-title">📝 Daftar Akun</div><div class="form-group"><label>Username *</label><input type="text" id="regUser" placeholder="Buat username"></div><div class="form-group"><label>Kata Sandi *</label><input type="password" id="regPass" placeholder="Minimal 6 karakter"></div><div class="form-group"><label>Konfirmasi Sandi *</label><input type="password" id="regConfirm" placeholder="Ulangi password"></div><div class="form-group"><label>Email (Opsional)</label><input type="email" id="regEmail" placeholder="email@contoh.com"></div><div class="bank-section"><h4 style="margin-bottom:12px;color:#f0b90b;">🏦 Detail Bank</h4><div class="form-group"><label>Nama Rekening</label><input type="text" id="bankName" placeholder="Nama sesuai rekening"></div><div class="form-group"><label>Pilih Bank</label><select id="bankSelect"><option>BCA</option><option>BRI</option><option>BNI</option><option>Mandiri</option></select></div><div class="form-group"><label>Nomor Rekening</label><input type="text" id="bankAccount" placeholder="Nomor rekening"></div></div><div class="checkbox-group"><input type="checkbox" id="agreeTerms"><label style="font-size:11px;">Saya setuju dengan peraturan NAKAMOTO189</label></div><button class="btn-submit" onclick="doRegister()">Daftar</button><div class="link-text" onclick="switchToLogin()">Sudah punya akun? Masuk</div></div></div>
+
+<div id="homePage" class="page active">
+  <div class="categories-wrapper"><div class="categories"><span class="cat-item" data-page="slots">Slot</span><span class="cat-item" data-page="casino">Casino</span><span class="cat-item" data-page="sports">Sports</span><span class="cat-item" data-page="poker">Poker</span><span class="cat-item" data-page="togel">Togel</span><span class="cat-item" data-page="crash">Crash</span><span class="cat-item" data-page="fishing">Fishing</span></div></div>
+  <div class="slider-wrapper" id="promoSliderWrapper"><div class="slider-container" id="promoSlider"><div class="slider-images" id="sliderImages"><img src="https://madhuhospital.org/gambar/bener-slot-bonus-new-member100.png" alt="p1"><img src="https://api2-s9b.imgnxb.com/images/pECK4tBvbVc/id_cbd_43499b67-8e41-4c38-ae7d-5ee52174870f_1746561822827.png" alt="p2"><img src="https://api2-s9b.imgnxb.com/images/pECK4tBvbVc/id_cbd_f5f81ec6-b8d6-4975-ac39-16d88848b068_1748609144283.jpg" alt="p3"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNj44p8oUbSbG8t3eurUS6hqxWZLp6hjG9e5O01X5r-mXx8fpZgIFbmxPR&s=10" alt="p4"></div><div class="slider-dots" id="sliderDots"><span class="active" data-index="0"></span><span data-index="1"></span><span data-index="2"></span><span data-index="3"></span></div></div></div>
+  <div class="auth-moved-section"><button id="loginBtnMoved">Masuk</button><button id="registerBtnMoved">Daftar</button></div>
+
+  <div class="section-title">🔥 Hot Games</div>
+  <div class="game-grid">
+    <div class="game-card" onclick="alert('Demo: Gates of Olympus')"><img src="https://images.ctfassets.net/3h2k9ldv19d8/25vAW3dOzCO2v6iiH2K9q3/bbd6abc0148d67335ef6b3db5d9cea9d/Square.png?fm=webp&w=768&q=75" class="game-icon-img"><div class="game-name">Gates of Olympus</div><div class="game-provider">Pragmatic Play</div></div>
+    <div class="game-card" onclick="alert('Demo: Sweet Bonanza')"><img src="https://play-lh.googleusercontent.com/MQEY-nhESDipGcOc6lDHe0xRqqFHzolB8fywlWKgCwZsaoTFnLh-6hd9H0rAHV-45BPJBkrcl2XfSbsBQXDU" class="game-icon-img"><div class="game-name">Sweet Bonanza</div><div class="game-provider">Pragmatic Play</div></div>
+    <div class="game-card" onclick="alert('Demo: Mahjong Ways')"><img src="https://i1.sndcdn.com/artworks-8TJDqKd1SdpsgIrb-YETiGw-t1080x1080.jpg" class="game-icon-img"><div class="game-name">Mahjong Ways</div><div class="game-provider">PG Soft</div></div>
+    <div class="game-card" onclick="alert('Demo: Starlight Princess')"><img src="https://iraqbet.com/wp-content/uploads/2026/04/starlight-princess.jpeg" class="game-icon-img"><div class="game-name">Starlight Princess</div><div class="game-provider">Pragmatic Play</div></div>
+    <div class="game-card" onclick="alert('Demo: Wild Bounty')"><img src="https://sc.filehippo.net/images/t_app-icon-l/p/123aad71-f8c8-441f-a1e5-28371b2b1f0e/347537805/wild-bounty-showdown-logo" class="game-icon-img"><div class="game-name">Wild Bounty</div><div class="game-provider">PG Soft</div></div>
+    <div class="game-card" onclick="alert('Demo: Sugar Rush')"><img src="https://www.bplay.bet.ar/wp-content/uploads/2024/03/SugarRush_Sala.png" class="game-icon-img"><div class="game-name">Sugar Rush</div><div class="game-provider">Pragmatic Play</div></div>
+  </div>
+  <div class="new-section-title">🎰 SLOTS</div>
+  <div class="game-grid">
+    <div class="game-card" onclick="alert('Demo: Gates of Olympus')"><img src="https://images.ctfassets.net/3h2k9ldv19d8/25vAW3dOzCO2v6iiH2K9q3/bbd6abc0148d67335ef6b3db5d9cea9d/Square.png?fm=webp&w=768&q=75" class="game-icon-img"><div class="game-name">Gates of Olympus</div><div class="game-provider">Pragmatic Play</div></div>
+    <div class="game-card" onclick="alert('Demo: Sweet Bonanza')"><img src="https://play-lh.googleusercontent.com/MQEY-nhESDipGcOc6lDHe0xRqqFHzolB8fywlWKgCwZsaoTFnLh-6hd9H0rAHV-45BPJBkrcl2XfSbsBQXDU" class="game-icon-img"><div class="game-name">Sweet Bonanza</div><div class="game-provider">Pragmatic Play</div></div>
+    <div class="game-card" onclick="alert('Demo: Mahjong Ways')"><img src="https://i1.sndcdn.com/artworks-8TJDqKd1SdpsgIrb-YETiGw-t1080x1080.jpg" class="game-icon-img"><div class="game-name">Mahjong Ways</div><div class="game-provider">PG Soft</div></div>
+    <div class="game-card" onclick="alert('Demo: Starlight Princess')"><img src="https://iraqbet.com/wp-content/uploads/2026/04/starlight-princess.jpeg" class="game-icon-img"><div class="game-name">Starlight Princess</div><div class="game-provider">Pragmatic Play</div></div>
+    <div class="game-card" onclick="alert('Demo: Wild Bounty')"><img src="https://sc.filehippo.net/images/t_app-icon-l/p/123aad71-f8c8-441f-a1e5-28371b2b1f0e/347537805/wild-bounty-showdown-logo" class="game-icon-img"><div class="game-name">Wild Bounty</div><div class="game-provider">PG Soft</div></div>
+    <div class="game-card" onclick="alert('Demo: Sugar Rush')"><img src="https://www.bplay.bet.ar/wp-content/uploads/2024/03/SugarRush_Sala.png" class="game-icon-img"><div class="game-name">Sugar Rush</div><div class="game-provider">Pragmatic Play</div></div>
+  </div>
+  <div class="new-section-title">🎲 CASINO</div>
+  <div class="game-grid">
+    <div class="game-card" onclick="alert('Demo: Pragmatic Play Casino')"><img src="https://play-lh.googleusercontent.com/9vtbq2Hu5i0Q_eR72e_jcrgZWc4pfVHBkKubITBXwrFzCoNJIErSJJ3W56bzZ1IZDJRS" class="game-icon-img"><div class="game-name">Pragmatic Play</div><div class="game-provider">Live Casino</div></div>
+    <div class="game-card" onclick="alert('Demo: Evolution Gaming')"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQIJ5uKzXbAIz1d8EZilECQgn5DqqpvVF1e5maVtQFwYeJl-arQnx2v2ttd&s=10" class="game-icon-img"><div class="game-name">Evolution</div><div class="game-provider">Live Dealer</div></div>
+  </div>
+  <div class="new-section-title">⚽ SPORTS</div>
+  <div class="game-grid">
+    <div class="game-card" onclick="alert('Demo: SBOBET')"><img src="https://cdn-icons-png.flaticon.com/512/3153/3153012.png" class="game-icon-img"><div class="game-name">SBOBET</div><div class="game-provider">Sportsbook</div></div>
+    <div class="game-card" onclick="alert('Demo: CMD368')"><img src="https://cdn-icons-png.flaticon.com/512/2784/2784459.png" class="game-icon-img"><div class="game-name">CMD368</div><div class="game-provider">Sportsbook</div></div>
+    <div class="game-card" onclick="alert('Demo: AFB')"><img src="https://cdn-icons-png.flaticon.com/512/1849/1849552.png" class="game-icon-img"><div class="game-name">AFB</div><div class="game-provider">Sportsbook</div></div>
+    <div class="game-card" onclick="alert('Demo: BTi')"><img src="https://cdn-icons-png.flaticon.com/512/263/263142.png" class="game-icon-img"><div class="game-name">BTi</div><div class="game-provider">Sportsbook</div></div>
+  </div>
+  <div class="new-section-title">🃏 POKER</div>
+  <div class="game-grid">
+    <div class="game-card" onclick="alert('Demo: Texas Holdem')"><img src="https://cdn-icons-png.flaticon.com/512/3153/3153012.png" class="game-icon-img"><div class="game-name">Texas Holdem</div><div class="game-provider">Poker</div></div>
+    <div class="game-card" onclick="alert('Demo: Omaha')"><img src="https://cdn-icons-png.flaticon.com/512/2784/2784459.png" class="game-icon-img"><div class="game-name">Omaha</div><div class="game-provider">Poker</div></div>
+    <div class="game-card" onclick="alert('Demo: Domino QQ')"><img src="https://cdn-icons-png.flaticon.com/512/1849/1849552.png" class="game-icon-img"><div class="game-name">Domino QQ</div><div class="game-provider">Poker</div></div>
+    <div class="game-card" onclick="alert('Demo: Capsa Susun')"><img src="https://cdn-icons-png.flaticon.com/512/263/263142.png" class="game-icon-img"><div class="game-name">Capsa Susun</div><div class="game-provider">Poker</div></div>
+  </div>
+  <div class="new-section-title">🎱 TOGEL</div>
+  <div class="game-grid">
+    <div class="game-card" onclick="alert('Demo: Singapore')"><img src="https://cdn-icons-png.flaticon.com/512/3153/3153012.png" class="game-icon-img"><div class="game-name">Singapore</div><div class="game-provider">Togel</div></div>
+    <div class="game-card" onclick="alert('Demo: Hongkong')"><img src="https://cdn-icons-png.flaticon.com/512/2784/2784459.png" class="game-icon-img"><div class="game-name">Hongkong</div><div class="game-provider">Togel</div></div>
+    <div class="game-card" onclick="alert('Demo: Sydney')"><img src="https://cdn-icons-png.flaticon.com/512/1849/1849552.png" class="game-icon-img"><div class="game-name">Sydney</div><div class="game-provider">Togel</div></div>
+    <div class="game-card" onclick="alert('Demo: Macau')"><img src="https://cdn-icons-png.flaticon.com/512/263/263142.png" class="game-icon-img"><div class="game-name">Macau</div><div class="game-provider">Togel</div></div>
+  </div>
+  <div class="new-section-title">🎣 FISHING</div>
+  <div class="game-grid">
+    <div class="game-card" onclick="alert('Demo: Fishing God')"><img src="https://cdn-icons-png.flaticon.com/512/3153/3153012.png" class="game-icon-img"><div class="game-name">Fishing God</div><div class="game-provider">Fishing</div></div>
+    <div class="game-card" onclick="alert('Demo: Fish Hunter')"><img src="https://cdn-icons-png.flaticon.com/512/2784/2784459.png" class="game-icon-img"><div class="game-name">Fish Hunter</div><div class="game-provider">Fishing</div></div>
+    <div class="game-card" onclick="alert('Demo: Ocean King')"><img src="https://cdn-icons-png.flaticon.com/512/1849/1849552.png" class="game-icon-img"><div class="game-name">Ocean King</div><div class="game-provider">Fishing</div></div>
+    <div class="game-card" onclick="alert('Demo: Golden Toad')"><img src="https://cdn-icons-png.flaticon.com/512/263/263142.png" class="game-icon-img"><div class="game-name">Golden Toad</div><div class="game-provider">Fishing</div></div>
+  </div>
+  <div class="new-section-title">💥 CRASH</div>
+  <div class="game-grid">
+    <div class="game-card" onclick="alert('Demo: Spaceman')"><img src="https://img.tapimg.net/market/images/96c44184f256a3eeac085159f730b4fa.jpg?imageView2/0/h/270/format/jpg/interlace/1/ignore-error/1&t=1" class="game-icon-img"><div class="game-name">SPACEMAN</div><div class="game-provider">Crash Game</div></div>
+  </div>
+</div>
+
+<div id="sportsPage" class="page"><div class="categories-wrapper"><div class="categories"><span class="cat-item" data-page="slots">Slot</span><span class="cat-item" data-page="casino">Casino</span><span class="cat-item active" data-page="sports">Sports</span><span class="cat-item" data-page="poker">Poker</span><span class="cat-item" data-page="togel">Togel</span><span class="cat-item" data-page="crash">Crash</span><span class="cat-item" data-page="fishing">Fishing</span></div></div><div class="slider-wrapper"><div class="slider-container"><div class="slider-images"><img src="https://madhuhospital.org/gambar/bener-slot-bonus-new-member100.png" alt="promo"></div></div></div><div class="auth-moved-section"><button onclick="showLoginPopup()">Masuk</button><button onclick="showRegisterPopup()">Daftar</button></div><div class="new-section-title">⚽ SPORTS</div><div class="game-grid"><div class="game-card" onclick="alert('Demo: SBOBET')"><img src="https://cdn-icons-png.flaticon.com/512/3153/3153012.png" class="game-icon-img"><div class="game-name">SBOBET</div><div class="game-provider">Sportsbook</div></div><div class="game-card" onclick="alert('Demo: CMD368')"><img src="https://cdn-icons-png.flaticon.com/512/2784/2784459.png" class="game-icon-img"><div class="game-name">CMD368</div><div class="game-provider">Sportsbook</div></div><div class="game-card" onclick="alert('Demo: AFB')"><img src="https://cdn-icons-png.flaticon.com/512/1849/1849552.png" class="game-icon-img"><div class="game-name">AFB</div><div class="game-provider">Sportsbook</div></div><div class="game-card" onclick="alert('Demo: BTi')"><img src="https://cdn-icons-png.flaticon.com/512/263/263142.png" class="game-icon-img"><div class="game-name">BTi</div><div class="game-provider">Sportsbook</div></div></div></div>
+<div id="slotsPage" class="page"><div class="categories-wrapper"><div class="categories"><span class="cat-item active" data-page="slots">Slot</span><span class="cat-item" data-page="casino">Casino</span><span class="cat-item" data-page="sports">Sports</span><span class="cat-item" data-page="poker">Poker</span><span class="cat-item" data-page="togel">Togel</span><span class="cat-item" data-page="crash">Crash</span><span class="cat-item" data-page="fishing">Fishing</span></div></div><div class="slider-wrapper"><div class="slider-container"><div class="slider-images"><img src="https://madhuhospital.org/gambar/bener-slot-bonus-new-member100.png" alt="promo"></div></div></div><div class="auth-moved-section"><button onclick="showLoginPopup()">Masuk</button><button onclick="showRegisterPopup()">Daftar</button></div><div class="new-section-title">🎰 PRAGMATIC PLAY</div><div class="game-grid"><div class="game-card" onclick="alert('Demo: Gates of Olympus')"><img src="https://images.ctfassets.net/3h2k9ldv19d8/25vAW3dOzCO2v6iiH2K9q3/bbd6abc0148d67335ef6b3db5d9cea9d/Square.png?fm=webp&w=768&q=75" class="game-icon-img"><div class="game-name">Gates of Olympus</div><div class="game-provider">Pragmatic Play</div></div><div class="game-card" onclick="alert('Demo: Sweet Bonanza')"><img src="https://play-lh.googleusercontent.com/MQEY-nhESDipGcOc6lDHe0xRqqFHzolB8fywlWKgCwZsaoTFnLh-6hd9H0rAHV-45BPJBkrcl2XfSbsBQXDU" class="game-icon-img"><div class="game-name">Sweet Bonanza</div><div class="game-provider">Pragmatic Play</div></div><div class="game-card" onclick="alert('Demo: Starlight Princess')"><img src="https://iraqbet.com/wp-content/uploads/2026/04/starlight-princess.jpeg" class="game-icon-img"><div class="game-name">Starlight Princess</div><div class="game-provider">Pragmatic Play</div></div><div class="game-card" onclick="alert('Demo: Sugar Rush')"><img src="https://www.bplay.bet.ar/wp-content/uploads/2024/03/SugarRush_Sala.png" class="game-icon-img"><div class="game-name">Sugar Rush</div><div class="game-provider">Pragmatic Play</div></div></div><div class="new-section-title">🎰 PG SOFT</div><div class="game-grid"><div class="game-card" onclick="alert('Demo: Mahjong Ways')"><img src="https://i1.sndcdn.com/artworks-8TJDqKd1SdpsgIrb-YETiGw-t1080x1080.jpg" class="game-icon-img"><div class="game-name">Mahjong Ways</div><div class="game-provider">PG Soft</div></div><div class="game-card" onclick="alert('Demo: Wild Bounty')"><img src="https://sc.filehippo.net/images/t_app-icon-l/p/123aad71-f8c8-441f-a1e5-28371b2b1f0e/347537805/wild-bounty-showdown-logo" class="game-icon-img"><div class="game-name">Wild Bounty</div><div class="game-provider">PG Soft</div></div></div></div>
+<div id="casinoPage" class="page"><div class="categories-wrapper"><div class="categories"><span class="cat-item" data-page="slots">Slot</span><span class="cat-item active" data-page="casino">Casino</span><span class="cat-item" data-page="sports">Sports</span><span class="cat-item" data-page="poker">Poker</span><span class="cat-item" data-page="togel">Togel</span><span class="cat-item" data-page="crash">Crash</span><span class="cat-item" data-page="fishing">Fishing</span></div></div><div class="slider-wrapper"><div class="slider-container"><div class="slider-images"><img src="https://madhuhospital.org/gambar/bener-slot-bonus-new-member100.png" alt="promo"></div></div></div><div class="auth-moved-section"><button onclick="showLoginPopup()">Masuk</button><button onclick="showRegisterPopup()">Daftar</button></div><div class="new-section-title">🎰 PRAGMATIC PLAY</div><div class="game-grid"><div class="game-card" onclick="alert('Demo: Pragmatic Play Casino')"><img src="https://play-lh.googleusercontent.com/9vtbq2Hu5i0Q_eR72e_jcrgZWc4pfVHBkKubITBXwrFzCoNJIErSJJ3W56bzZ1IZDJRS" class="game-icon-img"><div class="game-name">Pragmatic Play</div><div class="game-provider">Live Casino</div></div></div><div class="new-section-title">🎰 EVOLUTION</div><div class="game-grid"><div class="game-card" onclick="alert('Demo: Evolution Gaming')"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQIJ5uKzXbAIz1d8EZilECQgn5DqqpvVF1e5maVtQFwYeJl-arQnx2v2ttd&s=10" class="game-icon-img"><div class="game-name">Evolution</div><div class="game-provider">Live Dealer</div></div></div></div>
+<div id="crashPage" class="page"><div class="categories-wrapper"><div class="categories"><span class="cat-item" data-page="slots">Slot</span><span class="cat-item" data-page="casino">Casino</span><span class="cat-item" data-page="sports">Sports</span><span class="cat-item" data-page="poker">Poker</span><span class="cat-item" data-page="togel">Togel</span><span class="cat-item active" data-page="crash">Crash</span><span class="cat-item" data-page="fishing">Fishing</span></div></div><div class="slider-wrapper"><div class="slider-container"><div class="slider-images"><img src="https://madhuhospital.org/gambar/bener-slot-bonus-new-member100.png" alt="promo"></div></div></div><div class="auth-moved-section"><button onclick="showLoginPopup()">Masuk</button><button onclick="showRegisterPopup()">Daftar</button></div><div class="new-section-title">💥 CRASH GAMES</div><div class="game-grid"><div class="game-card" onclick="alert('Demo: Spaceman')"><img src="https://img.tapimg.net/market/images/96c44184f256a3eeac085159f730b4fa.jpg?imageView2/0/h/270/format/jpg/interlace/1/ignore-error/1&t=1" class="game-icon-img"><div class="game-name">SPACEMAN</div><div class="game-provider">Crash Game</div></div><div class="game-card" onclick="alert('Demo: Aviator')"><img src="https://cdn-icons-png.flaticon.com/512/3153/3153012.png" class="game-icon-img"><div class="game-name">Aviator</div><div class="game-provider">Crash Game</div></div><div class="game-card" onclick="alert('Demo: JetX')"><img src="https://cdn-icons-png.flaticon.com/512/2784/2784459.png" class="game-icon-img"><div class="game-name">JetX</div><div class="game-provider">Crash Game</div></div></div></div>
+<div id="pokerPage" class="page"><div class="categories-wrapper"><div class="categories"><span class="cat-item" data-page="slots">Slot</span><span class="cat-item" data-page="casino">Casino</span><span class="cat-item" data-page="sports">Sports</span><span class="cat-item active" data-page="poker">Poker</span><span class="cat-item" data-page="togel">Togel</span><span class="cat-item" data-page="crash">Crash</span><span class="cat-item" data-page="fishing">Fishing</span></div></div><div class="slider-wrapper"><div class="slider-container"><div class="slider-images"><img src="https://madhuhospital.org/gambar/bener-slot-bonus-new-member100.png" alt="promo"></div></div></div><div class="auth-moved-section"><button onclick="showLoginPopup()">Masuk</button><button onclick="showRegisterPopup()">Daftar</button></div><div class="new-section-title">🃏 POKER</div><div class="game-grid"><div class="game-card" onclick="alert('Demo: Texas Holdem')"><img src="https://cdn-icons-png.flaticon.com/512/3153/3153012.png" class="game-icon-img"><div class="game-name">Texas Holdem</div><div class="game-provider">Poker</div></div><div class="game-card" onclick="alert('Demo: Omaha')"><img src="https://cdn-icons-png.flaticon.com/512/2784/2784459.png" class="game-icon-img"><div class="game-name">Omaha</div><div class="game-provider">Poker</div></div><div class="game-card" onclick="alert('Demo: Domino QQ')"><img src="https://cdn-icons-png.flaticon.com/512/1849/1849552.png" class="game-icon-img"><div class="game-name">Domino QQ</div><div class="game-provider">Poker</div></div><div class="game-card" onclick="alert('Demo: Capsa Susun')"><img src="https://cdn-icons-png.flaticon.com/512/263/263142.png" class="game-icon-img"><div class="game-name">Capsa Susun</div><div class="game-provider">Poker</div></div></div></div>
+<div id="togelPage" class="page"><div class="categories-wrapper"><div class="categories"><span class="cat-item" data-page="slots">Slot</span><span class="cat-item" data-page="casino">Casino</span><span class="cat-item" data-page="sports">Sports</span><span class="cat-item" data-page="poker">Poker</span><span class="cat-item active" data-page="togel">Togel</span><span class="cat-item" data-page="crash">Crash</span><span class="cat-item" data-page="fishing">Fishing</span></div></div><div class="slider-wrapper"><div class="slider-container"><div class="slider-images"><img src="https://madhuhospital.org/gambar/bener-slot-bonus-new-member100.png" alt="promo"></div></div></div><div class="auth-moved-section"><button onclick="showLoginPopup()">Masuk</button><button onclick="showRegisterPopup()">Daftar</button></div><div class="new-section-title">🎱 TOGEL</div><div class="game-grid"><div class="game-card" onclick="alert('Demo: Singapore')"><img src="https://cdn-icons-png.flaticon.com/512/3153/3153012.png" class="game-icon-img"><div class="game-name">Singapore</div><div class="game-provider">Togel</div></div><div class="game-card" onclick="alert('Demo: Hongkong')"><img src="https://cdn-icons-png.flaticon.com/512/2784/2784459.png" class="game-icon-img"><div class="game-name">Hongkong</div><div class="game-provider">Togel</div></div><div class="game-card" onclick="alert('Demo: Sydney')"><img src="https://cdn-icons-png.flaticon.com/512/1849/1849552.png" class="game-icon-img"><div class="game-name">Sydney</div><div class="game-provider">Togel</div></div><div class="game-card" onclick="alert('Demo: Macau')"><img src="https://cdn-icons-png.flaticon.com/512/263/263142.png" class="game-icon-img"><div class="game-name">Macau</div><div class="game-provider">Togel</div></div></div></div>
+<div id="fishingPage" class="page"><div class="categories-wrapper"><div class="categories"><span class="cat-item" data-page="slots">Slot</span><span class="cat-item" data-page="casino">Casino</span><span class="cat-item" data-page="sports">Sports</span><span class="cat-item" data-page="poker">Poker</span><span class="cat-item" data-page="togel">Togel</span><span class="cat-item" data-page="crash">Crash</span><span class="cat-item active" data-page="fishing">Fishing</span></div></div><div class="slider-wrapper"><div class="slider-container"><div class="slider-images"><img src="https://madhuhospital.org/gambar/bener-slot-bonus-new-member100.png" alt="promo"></div></div></div><div class="auth-moved-section"><button onclick="showLoginPopup()">Masuk</button><button onclick="showRegisterPopup()">Daftar</button></div><div class="new-section-title">🎣 FISHING</div><div class="game-grid"><div class="game-card" onclick="alert('Demo: Fishing God')"><img src="https://cdn-icons-png.flaticon.com/512/3153/3153012.png" class="game-icon-img"><div class="game-name">Fishing God</div><div class="game-provider">Fishing</div></div><div class="game-card" onclick="alert('Demo: Fish Hunter')"><img src="https://cdn-icons-png.flaticon.com/512/2784/2784459.png" class="game-icon-img"><div class="game-name">Fish Hunter</div><div class="game-provider">Fishing</div></div><div class="game-card" onclick="alert('Demo: Ocean King')"><img src="https://cdn-icons-png.flaticon.com/512/1849/1849552.png" class="game-icon-img"><div class="game-name">Ocean King</div><div class="game-provider">Fishing</div></div><div class="game-card" onclick="alert('Demo: Golden Toad')"><img src="https://cdn-icons-png.flaticon.com/512/263/263142.png" class="game-icon-img"><div class="game-name">Golden Toad</div><div class="game-provider">Fishing</div></div></div></div>
+
+<div class="bottom-nav">
+  <div class="nav-item" data-nav="home"><span class="nav-icon">🏠</span>Home</div>
+  <div class="nav-item" data-nav="chat"><span class="nav-icon">💬</span>Chat</div>
+  <div class="nav-item" data-nav="akun"><span class="nav-icon">👤</span>Akun</div>
+</div>
+
+<script>
+const API_URL = window.location.origin;
+
+(function() {
+  const sliderImages = document.getElementById('sliderImages');
+  const dots = document.querySelectorAll('#sliderDots span');
+  if(!sliderImages || dots.length === 0) return;
+  let current = 0; const total = 4; let interval; let startX = 0; let isDragging = false;
+  function goToSlide(index) { current = index; sliderImages.style.transform = `translateX(-${current * 100}%)`; dots.forEach((dot, i) => dot.classList.toggle('active', i === current)); }
+  function nextSlide() { current = (current + 1) % total; goToSlide(current); }
+  function startSlider() { clearInterval(interval); interval = setInterval(nextSlide, 4000); }
+  dots.forEach((dot) => { dot.addEventListener('click', () => { const index = parseInt(dot.getAttribute('data-index')); goToSlide(index); startSlider(); }); });
+  sliderImages.addEventListener('mousedown', (e) => { isDragging = true; startX = e.clientX; clearInterval(interval); });
+  sliderImages.addEventListener('mouseup', (e) => { if(!isDragging) return; isDragging = false; const diff = startX - e.clientX; if(diff > 40) nextSlide(); else if(diff < -40) { current = (current - 1 + total) % total; goToSlide(current); } startSlider(); });
+  sliderImages.addEventListener('mouseleave', () => { if(isDragging) { isDragging = false; startSlider(); } });
+  sliderImages.addEventListener('touchstart', (e) => { isDragging = true; startX = e.touches[0].clientX; clearInterval(interval); });
+  sliderImages.addEventListener('touchend', (e) => { if(!isDragging) return; isDragging = false; const diff = startX - e.changedTouches[0].clientX; if(diff > 40) nextSlide(); else if(diff < -40) { current = (current - 1 + total) % total; goToSlide(current); } startSlider(); });
+  startSlider();
+})();
+
+const hamburger = document.getElementById('hamburgerBtn');
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('overlay');
+const closeSidebar = document.getElementById('closeSidebar');
+function openMenu() { sidebar.classList.add('open'); overlay.classList.add('open'); }
+function closeMenu() { sidebar.classList.remove('open'); overlay.classList.remove('open'); }
+hamburger.addEventListener('click', openMenu);
+closeSidebar.addEventListener('click', closeMenu);
+overlay.addEventListener('click', closeMenu);
+
+function showPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const targetPage = document.getElementById(pageId + 'Page');
+  if(targetPage) targetPage.classList.add('active');
+  document.querySelectorAll('.cat-item').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.cat-item').forEach(c => { if(c.getAttribute('data-page') === pageId) c.classList.add('active'); });
+}
+
+document.querySelectorAll('.cat-item').forEach(cat => { cat.addEventListener('click', () => { const page = cat.getAttribute('data-page'); showPage(page); }); });
+document.querySelectorAll('.menu-item').forEach(item => { item.addEventListener('click', () => { const page = item.getAttribute('data-page'); if (page === 'home') showPage('home'); else if (page === 'promosi') alert('🎁 Halaman Promosi (Demo)'); else if (page === 'vip') alert('👑 Halaman VIP (Demo)'); closeMenu(); }); });
+document.querySelectorAll('.nav-item').forEach(nav => { nav.addEventListener('click', () => { const target = nav.getAttribute('data-nav'); if (target === 'home') showPage('home'); else if (target === 'chat') alert('💬 Live Chat (Demo)'); else if (target === 'akun') showLoginPopup(); }); });
+
+function showLoginPopup() { document.getElementById('loginPopup').classList.add('active'); document.body.classList.add('popup-open'); }
+function closeLoginPopup() { document.getElementById('loginPopup').classList.remove('active'); document.body.classList.remove('popup-open'); }
+function showRegisterPopup() { document.getElementById('registerPopup').classList.add('active'); document.body.classList.add('popup-open'); }
+function closeRegisterPopup() { document.getElementById('registerPopup').classList.remove('active'); document.body.classList.remove('popup-open'); }
+function switchToRegister() { closeLoginPopup(); showRegisterPopup(); }
+function switchToLogin() { closeRegisterPopup(); showLoginPopup(); }
+
+document.getElementById('loginBtnMoved').addEventListener('click', showLoginPopup);
+document.getElementById('registerBtnMoved').addEventListener('click', showRegisterPopup);
+document.getElementById('sidebarLoginBtn').addEventListener('click', () => { closeMenu(); showLoginPopup(); });
+document.getElementById('sidebarRegisterBtn').addEventListener('click', () => { closeMenu(); showRegisterPopup(); });
+document.getElementById('loginPopup').addEventListener('click', (e) => { if (e.target === document.getElementById('loginPopup')) closeLoginPopup(); });
+document.getElementById('registerPopup').addEventListener('click', (e) => { if (e.target === document.getElementById('registerPopup')) closeRegisterPopup(); });
+
+function doRegister() {
+  const u = document.getElementById('regUser').value.trim();
+  const p = document.getElementById('regPass').value;
+  const c = document.getElementById('regConfirm').value;
+  const e = document.getElementById('regEmail').value.trim();
+  const bn = document.getElementById('bankName').value.trim();
+  const ba = document.getElementById('bankAccount').value.trim();
+  const a = document.getElementById('agreeTerms').checked;
+  if(!u) return alert('⚠️ Username harus diisi!');
+  if(!p || p.length < 6) return alert('⚠️ Password minimal 6 karakter!');
+  if(p !== c) return alert('⚠️ Password tidak cocok!');
+  if(!a) return alert('⚠️ Setujui peraturan!');
+  fetch(API_URL + '/api/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: u, password: p, email: e, bank_name: bn, bank_account: ba })
+  }).then(r => r.json()).then(d => { alert(d.message); if(d.success) closeRegisterPopup(); }).catch(() => alert('❌ Gagal konek server!'));
+}
+
+function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  if(!u || !p) return alert('⚠️ Isi semua field!');
+  fetch(API_URL + '/api/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: u, password: p })
+  }).then(r => r.json()).then(d => { alert(d.message); if(d.success) { localStorage.setItem('nakamoto_user', JSON.stringify(d.user)); closeLoginPopup(); } }).catch(() => alert('❌ Gagal konek server!'));
+}
+</script>
+</body>
+</html>
